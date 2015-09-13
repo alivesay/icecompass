@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>ice compass</title>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/foundation/5.5.1/js/foundation.min.js"></script>
+    <script type="text/javascript" src="icecompass.js"></script>
+    <script type="text/javascript">
+    /* global IceCondor */
+    
+    function loadClick () {
+        var icusername = document.getElementById('icusername').value;
+        var ictoken = document.getElementById('ictoken').value;
+        
+        localStorage.setItem('icusername', icusername);
+        localStorage.setItem('ictoken', ictoken);
+        
+        IceCondor.getUser({
+            token: ictoken,
+            username: icusername
+        }, function (err, result) {
+            if (err) {
+            document.getElementById("response").innerHTML = err + '\n\n' + result;
+            }
+            document.getElementById("response").innerHTML = JSON.stringify(JSON.parse(result), null, 4);
+        });
+    }
+    
+    window.onload = function () {
+        document.getElementById('icusername').value = localStorage.getItem('icusername');
+        document.getElementById('ictoken').value = localStorage.getItem('ictoken')
+    }
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <form>
+            <div class="row">
+                <div class="six columns">
+                    <label for="ictoken">Token:</label>
+                    <input class="u-full-width" type="text" id="ictoken" name="ictoken">
+                </div>
+            </div>
+            <div class="row">
+                <div class="six columns">
+                    <label for="icusername">Username:</label>
+                    <input class="u-full-width" type="text" id="icusername" name="icusername">
+                </div>
+            </div>
+            <button class="button-primary" type="button" onclick="loadClick()">Get User</button>
+            <label for="response">Response:</label>
+            <textarea class="u-full-width" style="height: 200px;" id="response" rows="30"></textarea>
+        </form>
+    </div>
+</body>
+
+</html>

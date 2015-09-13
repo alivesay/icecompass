@@ -1,0 +1,27 @@
+{
+  "name": "icecompass",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alivesay/icecompass.git"
+  },
+  "author": "",
+  "license": "Apache",
+  "bugs": {
+    "url": "https://github.com/alivesay/icecompass/issues"
+  },
+  "homepage": "https://github.com/alivesay/icecompass",
+  "publish": false,
+  "dependencies": {
+    "hapi": "^10.0.0",
+    "inert": "^3.0.1",
+    "node-cache": "^3.0.0",
+    "uuid": "^2.0.1",
+    "ws": "^0.8.0"
+  }
+}
