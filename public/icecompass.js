@@ -13,7 +13,6 @@ var IceCondor = (function(){
                 return callback(null, data);
             },
             error: function (jqXHR, textStatus, errorThrown) {
-                console.error(errorThrown);
                 return callback(errorThrown, JSON.parse(jqXHR.responseText));
             }
         });

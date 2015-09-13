@@ -12,6 +12,10 @@
     <script type="text/javascript">
     /* global IceCondor */
     
+    function responseHandler(err, result) {
+        $('#response').html(JSON.stringify(result, null, 4));
+    }
+    
     function loadClick () {
         var icusername = $('#icusername').val();
         var ictoken = $('#ictoken').val();
@@ -21,12 +25,7 @@
         IceCondor.getUser({
             token: ictoken,
             username: icusername
-        }, function (err, result) {
-            if (err) {
-                $('#response').html(err + '\n\n' + JSON.stringify(result, null, 4));
-            }
-                $('#response').html(JSON.stringify(result, null, 4));
-        });
+        }, responseHandler);
     }
     
     window.onload = function () {
