@@ -8,54 +8,106 @@
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/foundation/5.5.1/js/foundation.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/paper.js/0.9.24/paper-full.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/async/1.4.2/async.min.js"></script>
+    
     <script type="text/javascript" src="icecompass.js"></script>
     <script type="text/javascript">
-    /* global IceCondor */
+    /* global IceCondor, paper, compassShape, async */
     
-    function responseHandler(err, result) {
-        $('#response').html(JSON.stringify(result, null, 4));
-    }
+    var shapes = [];
     
-    function loadClick () {
+    function loadClick() {
         var icusername = $('#icusername').val();
         var ictoken = $('#ictoken').val();
         
         localStorage.setItem('icusername', icusername);
 
-        IceCondor.getUser({
-            token: ictoken,
-            username: icusername
-        }, responseHandler);
+        async.series([
+            function (callback) {
+                IceCondor.auth({
+                    token: ictoken,
+                }, function (err, result) {
+                    if (err) {
+                        return callback(err, result);
+                    }
+                    
+                    shapes['oLabel'].content = result.user_id;
+                    return callback(null, 1);
+                });
+            },
+            function (callback) {
+                IceCondor.getUserLocation({
+                    token: ictoken,
+                    username: icusername
+                }, function (err, result) {
+                    $('#response').html(JSON.stringify(result, null, 4));
+                    return callback(null, 2);
+                });
+            }
+        ], function (err, result) {
+            drawCanvas();    
+        });
+        
+        
+
+    }
+    
+    function drawCanvas() {
+        paper.view.draw();
+    }
+    
+    function setupCanvas() {
+        var canvas = $('#compass')[0];
+		paper.setup(canvas);
+		
+		shapes['compass'] = new paper.Path.Circle(paper.view.center, paper.view.size.height / 2 - 10);
+        shapes['compass'].strokeColor = '#33c3f0';
+        shapes['compass'].strokeWidth = '4';
+        shapes['compass'].fillColor = '#e9e9ff';
+        
+        shapes['oLabel'] = new paper.PointText(paper.view.center);
+        shapes['oLabel'].justification = 'left';
+        shapes['oLabel'].fillColor = 'black';
     }
     
     window.onload = function () {
+        setupCanvas();
         $('#ictoken').val(localStorage.getItem('ictoken'));
     }
+    
     </script>
 </head>
 
 <body>
     <div class="container">
-        <form>
-             <div class="row">
-                <div class="six columns">
-                    <label for="ictoken">Token:</label>
-                    <input class="u-full-width" type="text" id="ictoken" name="ictoken">
-                </div>
+        <div class="row">
+            <div class="six columns">
+                <canvas class="u-full-width" id="compass" resize></canvas>
             </div>
-            <fieldset>
-                <legend>GET /api/user/{username}</legend>
-                <div class="row">
-                    <div class="six columns">
-                        <label for="icusername">Username:</label>
-                        <input class="u-full-width" type="text" id="icusername" name="icusername">
+            <div class="six columns">
+                <form>
+                     <div class="row">
+                        <div class="six columns">
+                            <label for="ictoken">Token:</label>
+                            <input class="u-full-width" type="text" id="ictoken" name="ictoken">
+                        </div>
                     </div>
-                </div>
-            </fieldset>
-                <button class="button-primary" type="button" onclick="loadClick()">Get User</button>
-                <label for="response">Response:</label>
-                <textarea class="u-full-width" style="height: 200px;" id="response" rows="30"></textarea>
-        </form>
+                    <fieldset>
+                        <legend>GET /api/users/{username}/stream</legend>
+                        <div class="row">
+                            <div class="six columns">
+                                <label for="icusername">Username:</label>
+                                <input class="u-full-width" type="text" id="icusername" name="icusername">
+                            </div>
+                        </div>
+                    </fieldset>
+                        <button class="button-primary" type="button" onclick="loadClick()">Get User</button>
+                        <label for="response">Response:</label>
+                        <textarea class="u-full-width" style="height: 200px;" id="response" rows="30"></textarea>
+                </form>
+            </div>
+        </div>
     </div>
 </body>
 
